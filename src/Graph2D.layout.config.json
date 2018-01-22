@@ -1,0 +1,13 @@
+{
+    "Name": "Graph2D",
+    "DisplayName": "Graph2D",
+    "Description": "Allow you to display a 2D graph base on an object and his associated mesurement",
+    "JavaScriptClassName": "cwLayoutGraph2D",
+    "Options": [
+    {
+        "Id": "configuration",
+        "DisplayName": "Configuration",
+        "Description": "Use a json object to describe your step (see documentation)",
+        "Type": 0
+    }]
+}
