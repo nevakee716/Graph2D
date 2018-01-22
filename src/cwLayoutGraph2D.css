@@ -144,12 +144,20 @@
       float:left;
     }
 
+    div.legend-group-container {
+    	margin-left:20px;
+    }
+
+    	
+
     div.legend-group-container > div {
     	display:inline-grid;
+    	margin:0;
     }
 
     div.legend-group-container > h1 {
-    	margin:0px;
+    	font-size: 25px;
+    	margin:0;
     }
 
     div.legend-element-container {

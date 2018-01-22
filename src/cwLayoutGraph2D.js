@@ -232,36 +232,42 @@
 
                     // get the legend for this group.
                     var legend = self.graph2d.getLegend(group + " # " + groupProperty, 30, 30);
+                    try{
+                        // append class to icon. All styling classes from the vis.css/vis-timeline-graph2d.min.css have been copied over into the head here to be able to style the
+                        // icons with the same classes if they are using the default ones.
+                        legend.icon.setAttributeNS(null, "class", "legend-icon");
 
-                    // append class to icon. All styling classes from the vis.css/vis-timeline-graph2d.min.css have been copied over into the head here to be able to style the
-                    // icons with the same classes if they are using the default ones.
-                    legend.icon.setAttributeNS(null, "class", "legend-icon");
+                        // append the legend to the corresponding divs
+                        iconDiv.appendChild(legend.icon);
+                        descriptionDiv.innerHTML = legend.label;
 
-                    // append the legend to the corresponding divs
-                    iconDiv.appendChild(legend.icon);
-                    descriptionDiv.innerHTML = legend.label;
+                        // determine the order for left and right orientation
+                        if (legend.orientation == 'left') {
+                            descriptionDiv.style.textAlign = "left";
+                            containerDiv.appendChild(iconDiv);
+                            containerDiv.appendChild(descriptionDiv);
+                        } else {
+                            descriptionDiv.style.textAlign = "right";
+                            containerDiv.appendChild(descriptionDiv);
+                            containerDiv.appendChild(iconDiv);
+                        }
 
-                    // determine the order for left and right orientation
-                    if (legend.orientation == 'left') {
-                        descriptionDiv.style.textAlign = "left";
-                        containerDiv.appendChild(iconDiv);
-                        containerDiv.appendChild(descriptionDiv);
-                    } else {
-                        descriptionDiv.style.textAlign = "right";
-                        containerDiv.appendChild(descriptionDiv);
-                        containerDiv.appendChild(iconDiv);
+                        // append to the legend container div
+                        groupDivLegend.appendChild(containerDiv);
+
+                        var groupID = group + " # " + groupProperty;
+
+                        // bind click event to this legend element.
+                        containerDiv.onclick = function() {
+
+                            self.toggleGraph(groupID);
+                        };
+                    } catch(error) {
+                      console.log(error);
+                      // expected output: SyntaxError: unterminated string literal
+                      // Note - error messages will vary depending on browser
                     }
-
-                    // append to the legend container div
-                    groupDivLegend.appendChild(containerDiv);
-
-                    var groupID = group + " # " + groupProperty;
-
-                    // bind click event to this legend element.
-                    containerDiv.onclick = function() {
-
-                        self.toggleGraph(groupID);
-                    };
+                  
                 });
                 groupDiv.appendChild(groupDivLegend);
                 legendDiv.appendChild(groupDiv);
