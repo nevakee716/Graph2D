@@ -280,7 +280,7 @@
      */
     cwLayoutGraph2D.prototype.toggleGraph = function(groupId) {
         // get the container that was clicked on.
-        var container = document.getElementById("cwLayoutGraph2DLegend_" + this.nodeID);
+        var container = document.getElementById(groupId + "_legendContainer");
         // if visible, hide
         if (this.graph2d.isGroupVisible(groupId) == true) {
             this.groupsVIS.update({
@@ -293,7 +293,7 @@
                 id: groupId,
                 visible: true
             });
-            container.className = container.className.replace("notselected", "");
+            container.className = container.className.replace(" notselected", "");
         }
     };
 
