@@ -73,7 +73,7 @@
                             y = nextChild.properties[property];
                             group = groupBase + cwAPI.mm.getProperty(nextChild.objectTypeScriptName, property).name;
                             if (self.configuration.disable0 === false || y !== 0) {
-                                self.items.push({x,y,group});
+                                self.items.push({x : x,y : y,group :group});
                                 self.isData = "cw-visible";
                             }
                             groupItem.property.push(cwAPI.mm.getProperty(nextChild.objectTypeScriptName, property).name);
