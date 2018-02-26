@@ -12,16 +12,6 @@
         this.objects = {};
         this.layoutsByNodeId = {};
         this.init = true;
-        this.configuration = {
-            "hiddenNodes": [""],
-            "disable0": true,
-            "mesurementNodes": {
-                "mesure_20115_1779468335": {
-                    "propertyXScriptname": ["datedemesure"],
-                    "propertyYScriptname": ["valeurattentue", "valeurmesurée"]
-                }
-            }
-        };
         this.groups = {};
         this.configuration = JSON.parse(this.options.CustomOptions['configuration']);
         this.items = [];
