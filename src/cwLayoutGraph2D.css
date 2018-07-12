@@ -195,3 +195,7 @@
 
       display:flex;
     }
+
+    button.Graph2D_expendButton {
+      display:block;
+    }

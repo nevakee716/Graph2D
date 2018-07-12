@@ -15,6 +15,12 @@
         this.groups = {};
         this.configuration = JSON.parse(this.options.CustomOptions['configuration']);
         this.items = [];
+        if(this.configuration.isMinimalist === true) {
+            this.isMinimalist = true;
+        } else {
+            this.isMinimalist = false;
+        }
+        
 
     };
 
@@ -62,8 +68,13 @@
                         this.configuration.mesurementNodes[associationNode].propertyYScriptname.forEach(function(property) {
                             y = nextChild.properties[property];
                             group = groupBase + cwAPI.mm.getProperty(nextChild.objectTypeScriptName, property).name;
+                            if (self.isMinimalist) group = "mini";
                             if (self.configuration.disable0 === false || y !== 0) {
-                                self.items.push({x : x,y : y,group :group});
+                                self.items.push({
+                                    x: x,
+                                    y: y,
+                                    group: group
+                                });
                                 self.isData = "cw-visible";
                             }
                             groupItem.property.push(cwAPI.mm.getProperty(nextChild.objectTypeScriptName, property).name);
@@ -116,13 +127,14 @@
         this.simplify(this.JSONobjects, null);
 
         output.push('<div id="cwLayoutGraph2DGlobal_' + this.nodeID + '" class=' + this.isData + '>');
-        output.push('<div id="cwLayoutGraph2DLegend_' + this.nodeID + '" class="cwLayoutGraph2D_external-legend"></div>');
-        output.push('<div id="cwLayoutGraph2D_' + this.nodeID + '">');
+        if (this.isMinimalist === false) {
+            output.push('<div id="cwLayoutGraph2DLegend_' + this.nodeID + '" class="cwLayoutGraph2D_external-legend"></div>');
+        } else {
+            output.push('<button class="Graph2D_expendButton" id="Graph2DexpendButtonPlus_'+ this.nodeID +'"><i class="fa fa-plus" aria-hidden="true"></i></button>');
+            output.push('<button class="Graph2D_expendButton" id="Graph2DexpendButtonMinus_'+ this.nodeID +'"><i class="fa fa-minus" aria-hidden="true"></i></button>');
+        }
+        output.push('<div id="cwLayoutGraph2D_' + this.nodeID + '"></div>');
         output.push('</div>');
-
-        
-
-
 
     };
 
@@ -153,38 +165,84 @@
     // Building network
     cwLayoutGraph2D.prototype.createGraph2D = function() {
 
-
-        
-
-
-
         var groups = new vis.DataSet();
         this.groupsVIS = groups;
         for (var group in this.groups) {
-            if(this.groups.hasOwnProperty(group)) {
+            if (this.groups.hasOwnProperty(group)) {
                 this.groups[group].property.forEach(function(groupProperty) {
                     groups.add({
                         id: group + " # " + groupProperty,
                         content: groupProperty,
                     });
-                });                           
+                });
             }
         }
 
 
         var graph2DContainer = document.getElementById("cwLayoutGraph2D_" + this.nodeID);
 
-
-
         var dataset = new vis.DataSet(this.items);
         var canvaHeight = window.innerHeight - document.getElementsByClassName("page-content")[0].offsetHeight - document.getElementsByClassName("page-title")[0].offsetHeight;
+        var canvaWidth = document.getElementsByClassName("page-content")[0].offsetWidth;
+        var options = {};
 
-        var options = {
+
+
+        if (this.isMinimalist) {
+            //graph2DContainer.style.width = canvaWidth*0.4 + "px";
+            //graph2DContainer.style.height = '150px';
+            graph2DContainer.parentElement.style.display = "flex";
+            options = {
+                moveable: false,
+                legend: true,
+                autoResize: true,
+                height: '150px',
+                width: canvaWidth*0.4 + "px"
+            };
+            groups.add({
+                id: "mini",
+                content: this.mmNode.NodeName
+            });
+
+        } 
+
+
+        this.graph2d = new vis.Graph2d(graph2DContainer, this.items, groups, options);
+ 
+
+        var buttonPlus = document.getElementById("Graph2DexpendButtonPlus_" + this.nodeID);
+        var buttonMinus = document.getElementById("Graph2DexpendButtonMinus_" + this.nodeID);
+            buttonPlus.style.display = "block";
+            buttonMinus.style.display = "none";
+
+        var self = this;
+
+        buttonPlus.onclick = function(target) {
+            buttonPlus.style.display = "none";
+            buttonMinus.style.display = "block";
+            options = {
+                width: canvaWidth*0.9 + "px",
+                height: canvaHeight + 'px'
+            };
+
+            self.graph2d.setOptions(options);
+            window.scrollTo(0,buttonMinus.offsetTop );
 
         };
-        this.graph2d = new vis.Graph2d(graph2DContainer, this.items, groups, options);
+        buttonMinus.onclick = function(target) {
+            buttonMinus.style.display = "none";
+            buttonPlus.style.display = "block";
+            options = {
+                width: canvaWidth*0.4 + "px",
+                height: '150px'
+            };
+            self.graph2d.setOptions(options);
+        };
 
-        this.populateExternalLegend();
+       
+        if (this.isMinimalist === false) {
+            this.populateExternalLegend();
+        }
     };
 
 
@@ -197,11 +255,9 @@
         legendDiv.innerHTML = "";
         var self = this;
 
-
-
         // get for all groups:
         for (var group in this.groups) {
-            if(this.groups.hasOwnProperty(group)) {
+            if (this.groups.hasOwnProperty(group)) {
                 var groupDiv = document.createElement("div");
                 groupDiv.className = 'legend-group-container';
                 groupDiv.innerHTML = "<h1>" + group + "</h1>";
@@ -222,7 +278,7 @@
 
                     // get the legend for this group.
                     var legend = self.graph2d.getLegend(group + " # " + groupProperty, 30, 30);
-                    try{
+                    try {
                         // append class to icon. All styling classes from the vis.css/vis-timeline-graph2d.min.css have been copied over into the head here to be able to style the
                         // icons with the same classes if they are using the default ones.
                         legend.icon.setAttributeNS(null, "class", "legend-icon");
@@ -252,12 +308,12 @@
 
                             self.toggleGraph(groupID);
                         };
-                    } catch(error) {
-                      console.log(error);
-                      // expected output: SyntaxError: unterminated string literal
-                      // Note - error messages will vary depending on browser
+                    } catch (error) {
+                        console.log(error);
+                        // expected output: SyntaxError: unterminated string literal
+                        // Note - error messages will vary depending on browser
                     }
-                  
+
                 });
                 groupDiv.appendChild(groupDivLegend);
                 legendDiv.appendChild(groupDiv);
