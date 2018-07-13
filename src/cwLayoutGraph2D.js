@@ -20,7 +20,7 @@
         } else {
             this.isMinimalist = false;
         }
-        
+       
 
     };
 
@@ -210,13 +210,26 @@
         this.graph2d = new vis.Graph2d(graph2DContainer, this.items, groups, options);
  
 
+        if(this.configuration.Graph2dOption !== undefined) {
+            this.graph2d.setOptions(this.configuration.Graph2dOption);
+        } 
+            
+       
+        if (this.isMinimalist === false) {
+            this.populateExternalLegend();
+        }
+    };
+
+
+    cwLayoutGraph2D.prototype.enableExpendButton = function(options) {
+
         var buttonPlus = document.getElementById("Graph2DexpendButtonPlus_" + this.nodeID);
         var buttonMinus = document.getElementById("Graph2DexpendButtonMinus_" + this.nodeID);
-            buttonPlus.style.display = "block";
-            buttonMinus.style.display = "none";
+
+        buttonPlus.style.display = "block";
+        buttonMinus.style.display = "none";
 
         var self = this;
-
         buttonPlus.onclick = function(target) {
             buttonPlus.style.display = "none";
             buttonMinus.style.display = "block";
@@ -238,14 +251,7 @@
             };
             self.graph2d.setOptions(options);
         };
-
-       
-        if (this.isMinimalist === false) {
-            this.populateExternalLegend();
-        }
     };
-
-
     /**
      * this function fills the external legend with content using the getLegend() function.
      */
