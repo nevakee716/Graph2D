@@ -186,8 +186,6 @@
         var canvaWidth = document.getElementsByClassName("page-content")[0].offsetWidth;
         var options = {};
 
-
-
         if (this.isMinimalist) {
             //graph2DContainer.style.width = canvaWidth*0.4 + "px";
             //graph2DContainer.style.height = '150px';
@@ -215,13 +213,16 @@
         } 
             
        
+
         if (this.isMinimalist === false) {
             this.populateExternalLegend();
+        } else {
+            this.enableExpendButton(options,canvaHeight,canvaWidth);
         }
     };
 
 
-    cwLayoutGraph2D.prototype.enableExpendButton = function(options) {
+    cwLayoutGraph2D.prototype.enableExpendButton = function(options,canvaHeight,canvaWidth) {
 
         var buttonPlus = document.getElementById("Graph2DexpendButtonPlus_" + this.nodeID);
         var buttonMinus = document.getElementById("Graph2DexpendButtonMinus_" + this.nodeID);
