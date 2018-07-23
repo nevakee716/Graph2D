@@ -120,20 +120,20 @@
         var cpyObj = $.extend({}, object);
         var assoNode = {};
         this.isData = "";
-
+        this.uuid = this.nodeID + "_"  + object.object_id;
         assoNode[this.mmNode.NodeID] = object.associations[this.mmNode.NodeID];
         cpyObj.associations = assoNode;
         this.JSONobjects = cpyObj;
         this.simplify(this.JSONobjects, null);
 
-        output.push('<div id="cwLayoutGraph2DGlobal_' + this.nodeID + '" class=' + this.isData + '>');
+        output.push('<div id="cwLayoutGraph2DGlobal_' + this.uuid + '" class=' + this.isData + '>');
         if (this.isMinimalist === false) {
-            output.push('<div id="cwLayoutGraph2DLegend_' + this.nodeID + '" class="cwLayoutGraph2D_external-legend"></div>');
+            output.push('<div id="cwLayoutGraph2DLegend_' + this.uuid + '" class="cwLayoutGraph2D_external-legend"></div>');
         } else {
-            output.push('<button class="Graph2D_expendButton" id="Graph2DexpendButtonPlus_'+ this.nodeID +'"><i class="fa fa-plus" aria-hidden="true"></i></button>');
-            output.push('<button class="Graph2D_expendButton" id="Graph2DexpendButtonMinus_'+ this.nodeID +'"><i class="fa fa-minus" aria-hidden="true"></i></button>');
+            output.push('<button class="Graph2D_expendButton" id="Graph2DexpendButtonPlus_'+ this.uuid +'"><i class="fa fa-plus" aria-hidden="true"></i></button>');
+            output.push('<button class="Graph2D_expendButton" id="Graph2DexpendButtonMinus_'+ this.uuid +'"><i class="fa fa-minus" aria-hidden="true"></i></button>');
         }
-        output.push('<div id="cwLayoutGraph2D_' + this.nodeID + '"></div>');
+        output.push('<div id="cwLayoutGraph2D_' + this.uuid + '"></div>');
         output.push('</div>');
 
     };
@@ -179,7 +179,7 @@
         }
 
 
-        var graph2DContainer = document.getElementById("cwLayoutGraph2D_" + this.nodeID);
+        var graph2DContainer = document.getElementById("cwLayoutGraph2D_" + this.uuid);
 
         var dataset = new vis.DataSet(this.items);
         var canvaHeight = window.innerHeight - document.getElementsByClassName("page-content")[0].offsetHeight - document.getElementsByClassName("page-title")[0].offsetHeight;
@@ -224,8 +224,8 @@
 
     cwLayoutGraph2D.prototype.enableExpendButton = function(options,canvaHeight,canvaWidth) {
 
-        var buttonPlus = document.getElementById("Graph2DexpendButtonPlus_" + this.nodeID);
-        var buttonMinus = document.getElementById("Graph2DexpendButtonMinus_" + this.nodeID);
+        var buttonPlus = document.getElementById("Graph2DexpendButtonPlus_" + this.uuid);
+        var buttonMinus = document.getElementById("Graph2DexpendButtonMinus_" + this.uuid);
 
         buttonPlus.style.display = "block";
         buttonMinus.style.display = "none";
@@ -258,7 +258,7 @@
      */
     cwLayoutGraph2D.prototype.populateExternalLegend = function() {
 
-        var legendDiv = document.getElementById("cwLayoutGraph2DLegend_" + this.nodeID);
+        var legendDiv = document.getElementById("cwLayoutGraph2DLegend_" + this.uuid);
         legendDiv.innerHTML = "";
         var self = this;
 
