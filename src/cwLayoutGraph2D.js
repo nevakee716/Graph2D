@@ -64,10 +64,12 @@
                         x = nextChild.properties[config.propertyXScriptname];
                         groupItem = {};
 
-                        if (config.name) {
-                            groupItem.name = config.name;
+                        if (config.parentName) {
+                            groupItem.name = config.parentName;
                             groupItem.merged = true;
                         } else groupItem.name = child.name;
+
+
 
                         groupItem.property = [];
                         config.propertyYScriptname.forEach(function(property) {
