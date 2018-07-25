@@ -15,12 +15,11 @@
         this.groups = {};
         this.configuration = JSON.parse(this.options.CustomOptions['configuration']);
         this.items = [];
-        if(this.configuration.isMinimalist === true) {
+        if (this.configuration.isMinimalist === true) {
             this.isMinimalist = true;
         } else {
             this.isMinimalist = false;
         }
-       
 
     };
 
@@ -53,6 +52,7 @@
         var element, filterElement, groupFilter;
         var nextChild, x, groupBase, group, y, groupItem;
         var self = this;
+        var config;
         for (var associationNode in child.associations) {
             if (child.associations.hasOwnProperty(associationNode)) {
                 for (var i = 0; i < child.associations[associationNode].length; i += 1) {
@@ -60,26 +60,41 @@
                     if (!this.configuration.mesurementNodes.hasOwnProperty(associationNode)) { // jumpAndMerge when hidden
                         this.simplify(nextChild, fatherID);
                     } else { // adding mesurement
-                        x = nextChild.properties[this.configuration.mesurementNodes[associationNode].propertyXScriptname];
-                        groupBase = child.name + " # ";
+                        config = this.configuration.mesurementNodes[associationNode];
+                        x = nextChild.properties[config.propertyXScriptname];
                         groupItem = {};
-                        groupItem.name = child.name;
+
+                        if (config.parentName) {
+                            groupItem.name = config.parentName;
+                            groupItem.merged = true;
+                        } else groupItem.name = child.name;
+
+
+
                         groupItem.property = [];
-                        this.configuration.mesurementNodes[associationNode].propertyYScriptname.forEach(function(property) {
+                        config.propertyYScriptname.forEach(function(property) {
                             y = nextChild.properties[property];
-                            group = groupBase + cwAPI.mm.getProperty(nextChild.objectTypeScriptName, property).name;
+                            if (config.name) {
+                                group = config.name;
+                            } else {
+                                group = cwAPI.mm.getProperty(nextChild.objectTypeScriptName, property).name;
+                            }
+
                             if (self.isMinimalist) group = "mini";
                             if (self.configuration.disable0 === false || y !== 0) {
                                 self.items.push({
                                     x: x,
                                     y: y,
-                                    group: group
+                                    group: groupItem.name + " # " + group
                                 });
                                 self.isData = "cw-visible";
                             }
-                            groupItem.property.push(cwAPI.mm.getProperty(nextChild.objectTypeScriptName, property).name);
+                            groupItem.property.push(group);
                         });
-                        if (!this.groups.hasOwnProperty(groupItem.name)) this.groups[child.name] = groupItem;
+                        if (!this.groups.hasOwnProperty(groupItem.name)) this.groups[groupItem.name] = groupItem;
+                        else if (groupItem.merged === true && this.groups[groupItem.name].property.indexOf(groupItem.property) === -1) {
+                            this.groups[groupItem.name].property = this.groups[groupItem.name].property.concat(groupItem.property);
+                        }
                     }
                 }
             }
@@ -120,18 +135,31 @@
         var cpyObj = $.extend({}, object);
         var assoNode = {};
         this.isData = "";
-        this.uuid = this.nodeID + "_"  + object.object_id;
+        this.uuid = this.nodeID + "_" + object.object_id;
+
+        // keep the node of the layout
         assoNode[this.mmNode.NodeID] = object.associations[this.mmNode.NodeID];
+        // complementary node
+        if (this.configuration.complementaryNode) {
+            this.configuration.complementaryNode.forEach(function(nodeID) {
+                if (object.associations[nodeID]) {
+                    assoNode[nodeID] = object.associations[nodeID];
+                }
+            });
+
+        }
+
+
         cpyObj.associations = assoNode;
         this.JSONobjects = cpyObj;
         this.simplify(this.JSONobjects, null);
 
-        output.push('<div id="cwLayoutGraph2DGlobal_' + this.uuid + '" class=' + this.isData + '>');
+        output.push('<div id="cwLayoutGraph2DGlobal_' + this.uuid + '" class="' + this.isData + ' cwLayoutGraph2D">');
         if (this.isMinimalist === false) {
             output.push('<div id="cwLayoutGraph2DLegend_' + this.uuid + '" class="cwLayoutGraph2D_external-legend"></div>');
         } else {
-            output.push('<button class="Graph2D_expendButton" id="Graph2DexpendButtonPlus_'+ this.uuid +'"><i class="fa fa-plus" aria-hidden="true"></i></button>');
-            output.push('<button class="Graph2D_expendButton" id="Graph2DexpendButtonMinus_'+ this.uuid +'"><i class="fa fa-minus" aria-hidden="true"></i></button>');
+            output.push('<button class="Graph2D_expendButton" id="Graph2DexpendButtonPlus_' + this.uuid + '"><i class="fa fa-plus" aria-hidden="true"></i></button>');
+            output.push('<button class="Graph2D_expendButton" id="Graph2DexpendButtonMinus_' + this.uuid + '"><i class="fa fa-minus" aria-hidden="true"></i></button>');
         }
         output.push('<div id="cwLayoutGraph2D_' + this.uuid + '"></div>');
         output.push('</div>');
@@ -184,7 +212,9 @@
         var dataset = new vis.DataSet(this.items);
         var canvaHeight = window.innerHeight - document.getElementsByClassName("page-content")[0].offsetHeight - document.getElementsByClassName("page-title")[0].offsetHeight;
         var canvaWidth = document.getElementsByClassName("page-content")[0].offsetWidth;
-        var options = {};
+        var options = {
+            autoResize: true
+        };
 
         if (this.isMinimalist) {
             //graph2DContainer.style.width = canvaWidth*0.4 + "px";
@@ -195,34 +225,34 @@
                 legend: true,
                 autoResize: true,
                 height: '150px',
-                width: canvaWidth*0.4 + "px"
+                width: canvaWidth * 0.4 + "px"
             };
             groups.add({
                 id: "mini",
                 content: this.mmNode.NodeName
             });
 
-        } 
+        }
 
 
         this.graph2d = new vis.Graph2d(graph2DContainer, this.items, groups, options);
- 
 
-        if(this.configuration.Graph2dOption !== undefined) {
+
+        if (this.configuration.Graph2dOption !== undefined) {
             this.graph2d.setOptions(this.configuration.Graph2dOption);
-        } 
-            
-       
+        }
+
+
 
         if (this.isMinimalist === false) {
             this.populateExternalLegend();
         } else {
-            this.enableExpendButton(options,canvaHeight,canvaWidth);
+            this.enableExpendButton(options, canvaHeight, canvaWidth);
         }
     };
 
 
-    cwLayoutGraph2D.prototype.enableExpendButton = function(options,canvaHeight,canvaWidth) {
+    cwLayoutGraph2D.prototype.enableExpendButton = function(options, canvaHeight, canvaWidth) {
 
         var buttonPlus = document.getElementById("Graph2DexpendButtonPlus_" + this.uuid);
         var buttonMinus = document.getElementById("Graph2DexpendButtonMinus_" + this.uuid);
@@ -235,19 +265,19 @@
             buttonPlus.style.display = "none";
             buttonMinus.style.display = "block";
             options = {
-                width: canvaWidth*0.9 + "px",
+                width: canvaWidth * 0.9 + "px",
                 height: canvaHeight + 'px'
             };
 
             self.graph2d.setOptions(options);
-            window.scrollTo(0,buttonMinus.offsetTop );
+            window.scrollTo(0, buttonMinus.offsetTop);
 
         };
         buttonMinus.onclick = function(target) {
             buttonMinus.style.display = "none";
             buttonPlus.style.display = "block";
             options = {
-                width: canvaWidth*0.4 + "px",
+                width: canvaWidth * 0.4 + "px",
                 height: '150px'
             };
             self.graph2d.setOptions(options);

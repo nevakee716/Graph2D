@@ -191,6 +191,9 @@
       height:30px;
     }
 
+    div.cw-visible.cwLayoutGraph2D {
+      width: 100%;
+    }
     div.cwLayoutGraph2D_external-legend {
 
       display:flex;
