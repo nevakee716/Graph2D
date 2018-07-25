@@ -140,7 +140,7 @@
 
 
     cwLayoutGraph2D.prototype.applyJavaScript = function() {
-        if (this.init) {
+        if (this.init && this.isData) {
             this.init = false;
             var self = this;
             var libToLoad = [];
