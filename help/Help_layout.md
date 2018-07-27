@@ -1,10 +1,11 @@
 | **Name** | **Layout Graph2D** | **Version** | 
 | --- | --- | --- |
-| **Updated by** | Mathias PFAUWADEL | 1.1 |
+| **Updated by** | Mathias PFAUWADEL | 1.2 |
 
 
 ## Patch Notes
 
+* 1.2 : Adding Naming and possibilities to manually group
 * 1.1 : Adding minimalist behaviour
 * 1.0 : 1st version working
 
@@ -34,8 +35,11 @@ Here is an exemple :
 {
     "disable0": true, // if true will not display the dot with a value of 0
     "isMinimalist": true, // if true, the graph will be minimal
+    "complementaryNode" : ["nodeID1","nodeID2"] // allow to add node that are not below your layout
     "mesurementNodes": {
         "mesure_20115_1779468335": { //nodeID
+            "parentName" : "Mesure", // optionnal
+            "name" : "valeur",// optionnal
             "propertyXScriptname": ["datedemesure"], //propertyScripName in lowercase
             "propertyYScriptname": ["valeurattentue", "valeurmesurée"] //propertyScripName in lowercase
         }
