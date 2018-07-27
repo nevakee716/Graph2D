@@ -69,8 +69,6 @@
                             groupItem.merged = true;
                         } else groupItem.name = child.name;
 
-
-
                         groupItem.property = [];
                         config.propertyYScriptname.forEach(function(property) {
                             y = nextChild.properties[property];
@@ -210,8 +208,8 @@
         var graph2DContainer = document.getElementById("cwLayoutGraph2D_" + this.uuid);
 
         var dataset = new vis.DataSet(this.items);
-        var canvaHeight = window.innerHeight - document.getElementsByClassName("page-content")[0].offsetHeight - document.getElementsByClassName("page-title")[0].offsetHeight;
-        var canvaWidth = document.getElementsByClassName("page-content")[0].offsetWidth;
+        var canvaHeight = document.getElementById("main-nav").offsetHeight;
+        var canvaWidth = document.getElementsByClassName("page-content")[0].offsetWidth - graph2DContainer.offsetLeft;
         var options = {
             autoResize: true
         };
@@ -265,8 +263,8 @@
             buttonPlus.style.display = "none";
             buttonMinus.style.display = "block";
             options = {
-                width: canvaWidth * 0.9 + "px",
-                height: canvaHeight + 'px'
+                width: canvaWidth * 0.8 + "px",
+                height: canvaHeight * 0.8 + 'px'
             };
 
             self.graph2d.setOptions(options);
