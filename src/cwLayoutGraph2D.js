@@ -14,6 +14,7 @@
         this.init = true;
         this.groups = {};
         this.configuration = JSON.parse(this.options.CustomOptions['configuration']);
+
         this.items = [];
         if (this.configuration.isMinimalist === true) {
             this.isMinimalist = true;
@@ -195,6 +196,12 @@
         this.groupsVIS = groups;
         for (var group in this.groups) {
             if (this.groups.hasOwnProperty(group)) {
+                        
+                this.groups[group].property = this.groups[group].property.filter(function (value, index, self) { 
+                    return self.indexOf(value) === index;
+                });
+
+
                 this.groups[group].property.forEach(function(groupProperty) {
                     groups.add({
                         id: group + " # " + groupProperty,
