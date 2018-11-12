@@ -1,10 +1,11 @@
 | **Name** | **Layout Graph2D** | **Version** | 
 | --- | --- | --- |
-| **Updated by** | Mathias PFAUWADEL | 1.2 |
+| **Updated by** | Mathias PFAUWADEL | 1.3 |
 
 
 ## Patch Notes
 
+* 1.3 : You can choose color on a group
 * 1.2 : Adding Naming and possibilities to manually group
 * 1.1 : Adding minimalist behaviour
 * 1.0 : 1st version working
@@ -40,6 +41,7 @@ Here is an exemple :
         "mesure_20115_1779468335": { //nodeID
             "parentName" : "Mesure", // optionnal
             "name" : "valeur",// optionnal
+            "color" : "hexColor", // color in hexadecimal (optionnal)
             "propertyXScriptname": ["datedemesure"], //propertyScripName in lowercase
             "propertyYScriptname": ["valeurattentue", "valeurmesurée"] //propertyScripName in lowercase
         }
