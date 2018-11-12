@@ -21,6 +21,8 @@
         } else {
             this.isMinimalist = false;
         }
+        this.colorTable = {};
+        this.lastPoint = {};
 
     };
 
@@ -51,11 +53,13 @@
         var filteredFields = [];
         var groupFilter = {};
         var element, filterElement, groupFilter;
-        var nextChild, x, groupBase, group, y, groupItem;
+        var nextChild, x, groupBase, group, y, groupItem,lastX,lastY;
         var self = this;
         var config;
         for (var associationNode in child.associations) {
             if (child.associations.hasOwnProperty(associationNode)) {
+                lastX = undefined;
+                lastY = undefined;
                 for (var i = 0; i < child.associations[associationNode].length; i += 1) {
                     nextChild = child.associations[associationNode][i];
                     if (!this.configuration.mesurementNodes.hasOwnProperty(associationNode)) { // jumpAndMerge when hidden
@@ -65,9 +69,7 @@
                         x = nextChild.properties[config.propertyXScriptname];
                         groupItem = {};
 
-                        if(config.color) {
-                            groupItem.color = config.color;
-                        }
+
                         if (config.parentName) {
                             groupItem.name = config.parentName;
                             groupItem.merged = true;
@@ -82,6 +84,9 @@
                                 group = cwAPI.mm.getProperty(nextChild.objectTypeScriptName, property).name;
                             }
 
+                            if(config.color) {
+                                self.colorTable[groupItem.name + " # " + group] = config.color;
+                            }
                             if (self.isMinimalist) group = "mini";
                             if (self.configuration.disable0 === false || y !== 0) {
                                 self.items.push({
@@ -91,6 +96,11 @@
                                 });
                                 self.isData = "cw-visible";
                             }
+                            if(config.propertyYScriptname.length === 1 && (self.lastPoint[groupItem.name + " # " + group] === undefined || moment(x) > moment(self.lastPoint[groupItem.name + " # " + group].x))) {
+                                self.lastPoint[groupItem.name + " # " + group] = {};
+                                self.lastPoint[groupItem.name + " # " + group].x = x;
+                                self.lastPoint[groupItem.name + " # " + group].y = y;
+                            }
                             groupItem.property.push(group);
                         });
                         if (!this.groups.hasOwnProperty(groupItem.name)) this.groups[groupItem.name] = groupItem;
@@ -99,6 +109,7 @@
                         }
                     }
                 }
+
             }
         }
 
@@ -196,6 +207,7 @@
     cwLayoutGraph2D.prototype.createGraph2D = function() {
 
         var groups = new vis.DataSet();
+        var self = this;
         this.groupsVIS = groups;
         for (var group in this.groups) {
             if (this.groups.hasOwnProperty(group)) {
@@ -206,11 +218,30 @@
 
 
                 this.groups[group].property.forEach(function(groupProperty) {
-                    groups.add({
-                        id: group + " # " + groupProperty,
-                        content: groupProperty,
-                        style: "stroke:"+ group.color
-                    });
+                    var obj = {};
+                    obj.id = group + " # " + groupProperty;
+                    obj.content = groupProperty;
+                    obj.style = {};
+                    obj.style = "stroke:" + self.colorTable[obj.id];
+                    obj.options = {}; obj.options.drawPoints = {};
+                    obj.options.drawPoints.style =  "square";
+                    obj.options.drawPoints.styles =  "stroke:" + self.colorTable[obj.id] + ";";
+                    obj.options.drawPoints.styles += "fill:" + self.colorTable[obj.id] + ";";
+                    obj.options.drawPoints.styles += "stroke-width:2" + ";"
+                    obj.options.drawPoints.size = 6;
+                    obj.options.interpolation = false;
+                    groups.add(obj);
+
+
+                    if (self.lastPoint[obj.id] !== undefined ) {
+                        self.items.push({
+                            x: Date.now(),
+                            y: self.lastPoint[obj.id].y,
+                            group: obj.id
+                        });
+                    }
+
+
                 });
             }
         }
