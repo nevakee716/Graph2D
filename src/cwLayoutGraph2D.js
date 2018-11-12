@@ -65,6 +65,9 @@
                         x = nextChild.properties[config.propertyXScriptname];
                         groupItem = {};
 
+                        if(config.color) {
+                            groupItem.color = config.color;
+                        }
                         if (config.parentName) {
                             groupItem.name = config.parentName;
                             groupItem.merged = true;
@@ -206,6 +209,7 @@
                     groups.add({
                         id: group + " # " + groupProperty,
                         content: groupProperty,
+                        style: "stroke:"+ group.color
                     });
                 });
             }
