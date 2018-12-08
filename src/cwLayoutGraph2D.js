@@ -145,6 +145,7 @@
 
     // obligatoire appeler par le system
     cwLayoutGraph2D.prototype.drawAssociations = function(output, associationTitleText, object) {
+        if(object === null || object === undefined) return;
         var cpyObj = $.extend({}, object);
         var assoNode = {};
         this.isData = "";
