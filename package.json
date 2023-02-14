@@ -1,6 +1,6 @@
 {
   "name": "Graph2D",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Allow you to Graph2D",
   "main": "src/Graph2D.js",
   "scripts": {
