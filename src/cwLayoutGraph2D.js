@@ -1,10 +1,10 @@
 /* Copyright (c) 2012-2013 Casewise Systems Ltd (UK) - All rights reserved */
 
 /*global cwAPI, jQuery */
-(function(cwApi, $) {
+(function (cwApi, $) {
   "use strict";
   // constructor
-  var cwLayoutGraph2D = function(options, viewSchema) {
+  var cwLayoutGraph2D = function (options, viewSchema) {
     cwApi.extend(this, cwApi.cwLayouts.CwLayout, options, viewSchema); // heritage
     cwApi.registerLayoutForJSActions(this); // execute le applyJavaScript après drawAssociations
     this.objects = {};
@@ -23,9 +23,9 @@
     this.lastPoint = {};
   };
 
-  cwLayoutGraph2D.prototype.getItemDisplayString = function(item) {
+  cwLayoutGraph2D.prototype.getItemDisplayString = function (item) {
     var l,
-      getDisplayStringFromLayout = function(layout) {
+      getDisplayStringFromLayout = function (layout) {
         return layout.displayProperty.getDisplayString(item);
       };
     if (item.nodeID === this.nodeID) {
@@ -42,7 +42,7 @@
     return getDisplayStringFromLayout(this.layoutsByNodeId[item.nodeID]);
   };
 
-  cwLayoutGraph2D.prototype.simplify = function(child, fatherID) {
+  cwLayoutGraph2D.prototype.simplify = function (child, fatherID) {
     var childrenArray = [];
     var filterArray = [];
     var filtersGroup = [];
@@ -73,7 +73,7 @@
             } else groupItem.name = child.name;
 
             groupItem.property = [];
-            config.propertyYScriptname.forEach(function(property) {
+            config.propertyYScriptname.forEach(function (property) {
               y = nextChild.properties[property];
               let propertType = cwAPI.mm.getProperty(nextChild.objectTypeScriptName, property);
               if (propertType.type === "Lookup") {
@@ -98,7 +98,10 @@
                 });
                 self.isData = "cw-visible";
               }
-              if (config.propertyYScriptname.length === 1 && (self.lastPoint[groupItem.name + " # " + group] === undefined || moment(x) > moment(self.lastPoint[groupItem.name + " # " + group].x))) {
+              if (
+                config.propertyYScriptname.length === 1 &&
+                (self.lastPoint[groupItem.name + " # " + group] === undefined || moment(x) > moment(self.lastPoint[groupItem.name + " # " + group].x))
+              ) {
                 self.lastPoint[groupItem.name + " # " + group] = {};
                 self.lastPoint[groupItem.name + " # " + group].x = x;
                 self.lastPoint[groupItem.name + " # " + group].y = y;
@@ -117,7 +120,7 @@
     return childrenArray;
   };
 
-  cwLayoutGraph2D.prototype.multiLine = function(name, size) {
+  cwLayoutGraph2D.prototype.multiLine = function (name, size) {
     if (size !== "" && size > 0) {
       var nameSplit = name.split(" ");
       var carry = 0;
@@ -140,7 +143,7 @@
   };
 
   // obligatoire appeler par le system
-  cwLayoutGraph2D.prototype.drawAssociations = function(output, associationTitleText, object) {
+  cwLayoutGraph2D.prototype.drawAssociations = function (output, associationTitleText, object) {
     if (object === null || object === undefined) return;
     var cpyObj = $.extend({}, object);
     var assoNode = {};
@@ -151,7 +154,7 @@
     assoNode[this.mmNode.NodeID] = object.associations[this.mmNode.NodeID];
     // complementary node
     if (this.configuration.complementaryNode) {
-      this.configuration.complementaryNode.forEach(function(nodeID) {
+      this.configuration.complementaryNode.forEach(function (nodeID) {
         if (object.associations[nodeID]) {
           assoNode[nodeID] = object.associations[nodeID];
         }
@@ -166,14 +169,18 @@
     if (this.isMinimalist === false) {
       output.push('<div id="cwLayoutGraph2DLegend_' + this.uuid + '" class="cwLayoutGraph2D_external-legend"></div>');
     } else {
-      output.push('<button class="Graph2D_expendButton" id="Graph2DexpendButtonPlus_' + this.uuid + '"><i class="fa fa-plus" aria-hidden="true"></i></button>');
-      output.push('<button class="Graph2D_expendButton" id="Graph2DexpendButtonMinus_' + this.uuid + '"><i class="fa fa-minus" aria-hidden="true"></i></button>');
+      output.push(
+        '<button class="Graph2D_expendButton" id="Graph2DexpendButtonPlus_' + this.uuid + '"><i class="fa fa-plus" aria-hidden="true"></i></button>'
+      );
+      output.push(
+        '<button class="Graph2D_expendButton" id="Graph2DexpendButtonMinus_' + this.uuid + '"><i class="fa fa-minus" aria-hidden="true"></i></button>'
+      );
     }
     output.push('<div id="cwLayoutGraph2D_' + this.uuid + '"></div>');
     output.push("</div>");
   };
 
-  cwLayoutGraph2D.prototype.applyJavaScript = function() {
+  cwLayoutGraph2D.prototype.applyJavaScript = function () {
     if (this.init && this.isData) {
       this.init = false;
       var self = this;
@@ -182,9 +189,12 @@
       if (cwAPI.isDebugMode() === true) {
         self.createGraph2D();
       } else {
-        libToLoad = ["modules/vis/vis.min.js"];
+        libToLoad =
+          cwAPI.cwConfigs.EnabledVersion.indexOf("v2022") !== -1
+            ? []
+            : ["modules/bootstrap/bootstrap.min.js", "modules/bootstrap-select/bootstrap-select.min.js"];
         // AsyncLoad
-        cwApi.customLibs.aSyncLayoutLoader.loadUrls(libToLoad, function(error) {
+        cwApi.customLibs.aSyncLayoutLoader.loadUrls(libToLoad, function (error) {
           if (error === null) {
             self.createGraph2D();
           } else {
@@ -196,17 +206,17 @@
   };
 
   // Building network
-  cwLayoutGraph2D.prototype.createGraph2D = function() {
+  cwLayoutGraph2D.prototype.createGraph2D = function () {
     var groups = new vis.DataSet();
     var self = this;
     this.groupsVIS = groups;
     for (var group in this.groups) {
       if (this.groups.hasOwnProperty(group)) {
-        this.groups[group].property = this.groups[group].property.filter(function(value, index, self) {
+        this.groups[group].property = this.groups[group].property.filter(function (value, index, self) {
           return self.indexOf(value) === index;
         });
 
-        this.groups[group].property.forEach(function(groupProperty) {
+        this.groups[group].property.forEach(function (groupProperty) {
           var obj = {};
           obj.id = group + " # " + groupProperty;
           obj.content = groupProperty;
@@ -272,7 +282,7 @@
     }
   };
 
-  cwLayoutGraph2D.prototype.enableExpendButton = function(options, canvaHeight, canvaWidth) {
+  cwLayoutGraph2D.prototype.enableExpendButton = function (options, canvaHeight, canvaWidth) {
     var buttonPlus = document.getElementById("Graph2DexpendButtonPlus_" + this.uuid);
     var buttonMinus = document.getElementById("Graph2DexpendButtonMinus_" + this.uuid);
 
@@ -280,7 +290,7 @@
     buttonMinus.style.display = "none";
 
     var self = this;
-    buttonPlus.onclick = function(target) {
+    buttonPlus.onclick = function (target) {
       buttonPlus.style.display = "none";
       buttonMinus.style.display = "block";
       options = {
@@ -291,7 +301,7 @@
       self.graph2d.setOptions(options);
       window.scrollTo(0, buttonMinus.offsetTop);
     };
-    buttonMinus.onclick = function(target) {
+    buttonMinus.onclick = function (target) {
       buttonMinus.style.display = "none";
       buttonPlus.style.display = "block";
       options = {
@@ -304,7 +314,7 @@
   /**
    * this function fills the external legend with content using the getLegend() function.
    */
-  cwLayoutGraph2D.prototype.populateExternalLegend = function() {
+  cwLayoutGraph2D.prototype.populateExternalLegend = function () {
     var legendDiv = document.getElementById("cwLayoutGraph2DLegend_" + this.uuid);
     legendDiv.innerHTML = "";
     var self = this;
@@ -317,7 +327,7 @@
         groupDiv.innerHTML = "<h1>" + group + "</h1>";
         var groupDivLegend = document.createElement("div");
 
-        this.groups[group].property.forEach(function(groupProperty) {
+        this.groups[group].property.forEach(function (groupProperty) {
           // create divs
           var containerDiv = document.createElement("div");
           var iconDiv = document.createElement("div");
@@ -357,7 +367,7 @@
             var groupID = group + " # " + groupProperty;
 
             // bind click event to this legend element.
-            containerDiv.onclick = function() {
+            containerDiv.onclick = function () {
               self.toggleGraph(groupID);
             };
           } catch (error) {
@@ -375,7 +385,7 @@
    * This function switchs the visible option of the selected group on an off.
    * @param groupId
    */
-  cwLayoutGraph2D.prototype.toggleGraph = function(groupId) {
+  cwLayoutGraph2D.prototype.toggleGraph = function (groupId) {
     // get the container that was clicked on.
     var container = document.getElementById(groupId + "_legendContainer");
     // if visible, hide
@@ -395,7 +405,7 @@
     }
   };
 
-  cwLayoutGraph2D.prototype.lookForObjects = function(id, scriptname, child) {
+  cwLayoutGraph2D.prototype.lookForObjects = function (id, scriptname, child) {
     var childrenArray = [];
     var element;
     var nextChild;
@@ -416,14 +426,14 @@
     return null;
   };
 
-  cwLayoutGraph2D.prototype.openObjectPage = function(id, scriptname) {
+  cwLayoutGraph2D.prototype.openObjectPage = function (id, scriptname) {
     var object = this.lookForObjects(id, scriptname, this.originalObject);
     if (object) {
       location.href = this.singleLinkMethod(scriptname, object);
     }
   };
 
-  cwLayoutGraph2D.prototype.openPopOut = function(id, scriptname) {
+  cwLayoutGraph2D.prototype.openPopOut = function (id, scriptname) {
     var object = this.lookForObjects(id, scriptname, this.originalObject);
     if (this.popOut[scriptname]) {
       cwApi.cwDiagramPopoutHelper.openDiagramPopout(object, this.popOut[scriptname]);
